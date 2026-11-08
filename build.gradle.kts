@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    kotlin("jvm") version "1.9.24"
+    kotlin("jvm") version "2.1.0"
     id("org.jetbrains.intellij.platform") version "2.2.1"
 }
 
@@ -25,19 +25,17 @@ dependencies {
             providers.gradleProperty("platformVersion").get(),
         )
 
-        bundledPlugin("com.intellij.java")
-        bundledPlugin("org.jetbrains.kotlin")
         testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.Platform)
     }
 }
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
 }
 
 tasks {
     withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-        compilerOptions.jvmTarget.set(JvmTarget.JVM_17)
+        compilerOptions.jvmTarget.set(JvmTarget.JVM_21)
         compilerOptions.freeCompilerArgs.add("-Xjvm-default=all")
     }
 
@@ -65,13 +63,19 @@ intellijPlatform {
         }
 
         description = """
-            FlowIME 是一个面向 IntelliJ IDEA 的上下文感知输入法切换插件。
+            FlowIME 是一款面向 JetBrains IDE 的智能输入法切换插件。
             它会根据代码、注释、字符串等编辑场景自动切换中英文输入法，
-            当前重点支持 Java、Kotlin、XML，并提供诊断窗口、结构化报告、
+            支持所有常见编程语言和 Git commit 场景，提供诊断窗口、结构化报告、
             im-select 与自定义命令适配器。
         """.trimIndent()
 
         changeNotes = """
+            <p>0.2.0</p>
+            <ul>
+                <li>扩展语言支持：适配所有 JetBrains IDE 和常见编程语言</li>
+                <li>Git commit 消息自动切换到中文</li>
+                <li>新增通用规则配置项：支持非 Java/Kotlin 语言的注释与字符串场景</li>
+            </ul>
             <p>0.1.0</p>
             <ul>
                 <li>完成首版上下文识别、策略状态机、设置页与诊断窗口</li>

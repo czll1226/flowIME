@@ -12,6 +12,8 @@ class SmartImeSettingsConfigurable : Configurable {
     private val kotlinCommentsCheckBox = JBCheckBox("Kotlin 注释切换为中文")
     private val stringsCheckBox = JBCheckBox("Java / Kotlin 字符串切换为中文")
     private val xmlCommentsCheckBox = JBCheckBox("XML 注释切换为中文")
+    private val generalCommentsCheckBox = JBCheckBox("通用语言注释切换为中文（Python、Go、Rust、JS、TS 等）")
+    private val generalStringsCheckBox = JBCheckBox("通用语言字符串切换为中文")
     private val debugLoggingCheckBox = JBCheckBox("启用调试日志（写入 idea.log）")
     private val nativeAdaptersCheckBox = JBCheckBox("启用实验性原生 IME 适配器（部分系统可能导致 IDEA 崩溃）")
     private val englishCommandField = JBTextField().apply {
@@ -55,6 +57,8 @@ class SmartImeSettingsConfigurable : Configurable {
                 row { cell(kotlinCommentsCheckBox) }
                 row { cell(stringsCheckBox) }
                 row { cell(xmlCommentsCheckBox) }
+                row { cell(generalCommentsCheckBox) }
+                row { cell(generalStringsCheckBox) }
             }
             group("用户意图保护") {
                 row("手动切换尊重期（毫秒）") { cell(manualOverrideRespectField) }
@@ -83,6 +87,8 @@ class SmartImeSettingsConfigurable : Configurable {
             kotlinCommentsCheckBox.isSelected != state.kotlinCommentsChinese ||
             stringsCheckBox.isSelected != state.stringsChinese ||
             xmlCommentsCheckBox.isSelected != state.xmlCommentsChinese ||
+            generalCommentsCheckBox.isSelected != state.generalCommentsChinese ||
+            generalStringsCheckBox.isSelected != state.generalStringsChinese ||
             debugLoggingCheckBox.isSelected != state.debugLogging ||
             nativeAdaptersCheckBox.isSelected != state.enableExperimentalNativeAdapters ||
             englishCommandField.text != state.englishSwitchCommand ||
@@ -102,6 +108,8 @@ class SmartImeSettingsConfigurable : Configurable {
                 kotlinCommentsChinese = kotlinCommentsCheckBox.isSelected,
                 stringsChinese = stringsCheckBox.isSelected,
                 xmlCommentsChinese = xmlCommentsCheckBox.isSelected,
+                generalCommentsChinese = generalCommentsCheckBox.isSelected,
+                generalStringsChinese = generalStringsCheckBox.isSelected,
                 debugLogging = debugLoggingCheckBox.isSelected,
                 enableExperimentalNativeAdapters = nativeAdaptersCheckBox.isSelected,
                 englishSwitchCommand = englishCommandField.text.trim(),
@@ -122,6 +130,8 @@ class SmartImeSettingsConfigurable : Configurable {
         kotlinCommentsCheckBox.isSelected = state.kotlinCommentsChinese
         stringsCheckBox.isSelected = state.stringsChinese
         xmlCommentsCheckBox.isSelected = state.xmlCommentsChinese
+        generalCommentsCheckBox.isSelected = state.generalCommentsChinese
+        generalStringsCheckBox.isSelected = state.generalStringsChinese
         debugLoggingCheckBox.isSelected = state.debugLogging
         nativeAdaptersCheckBox.isSelected = state.enableExperimentalNativeAdapters
         englishCommandField.text = state.englishSwitchCommand

@@ -21,7 +21,7 @@ class DefaultSwitchPolicyEngine : SwitchPolicyEngine {
                 val enabled = when {
                     snapshot.language.equals("JAVA", ignoreCase = true) -> settings.javaCommentsChinese
                     snapshot.language.equals("kotlin", ignoreCase = true) -> settings.kotlinCommentsChinese
-                    else -> false
+                    else -> settings.generalCommentsChinese
                 }
                 if (enabled) {
                     SwitchDecision(TargetInputMode.CHINESE, "comment-defaults-to-chinese")
@@ -31,7 +31,11 @@ class DefaultSwitchPolicyEngine : SwitchPolicyEngine {
             }
 
             ContextType.STRING_LITERAL -> {
-                if (settings.stringsChinese) {
+                val enabled = when {
+                    snapshot.language.equals("JAVA", ignoreCase = true) || snapshot.language.equals("kotlin", ignoreCase = true) -> settings.stringsChinese
+                    else -> settings.generalStringsChinese
+                }
+                if (enabled) {
                     SwitchDecision(TargetInputMode.CHINESE, "string-literal-defaults-to-chinese")
                 } else {
                     SwitchDecision(TargetInputMode.KEEP, "string-rule-disabled")

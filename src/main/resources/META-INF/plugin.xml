@@ -3,19 +3,25 @@
     <name>FlowIME</name>
     <vendor>JustCodeIt</vendor>
     <description><![CDATA[
-        <p><strong>FlowIME</strong> 是一个面向 IntelliJ IDEA 的上下文感知输入法切换插件，会根据光标所在位置在中文和英文输入之间自动切换，让写代码、注释和字符串时更连贯。</p>
-        <p>它特别适合中文开发者，减少在 Java、Kotlin、XML 等场景中频繁手动切换输入法的打断感。</p>
-        <p>当前版本重点覆盖这些高频开发场景：</p>
+        <p><strong>FlowIME</strong> 是一款面向 JetBrains IDE 的智能输入法切换插件，根据编辑上下文自动切换中英文输入，让代码编写、注释、字符串输入更流畅。</p>
+        <p>适用于所有 JetBrains IDE（IntelliJ IDEA、PyCharm、WebStorm、GoLand、Rider、CLion 等），默认对所有常见语言适配。</p>
+        <p>覆盖场景：</p>
         <ul>
-            <li>Java / Kotlin 代码区域自动切到英文</li>
-            <li>Java / Kotlin 注释与字符串自动切到中文</li>
-            <li>Kotlin 字符串插值表达式保持英文</li>
-            <li>XML 注释自动切到中文</li>
-            <li>提供设置页、诊断窗口、结构化报告导出、<code>im-select</code> 和命令适配器支持</li>
+            <li>代码区域自动切换到英文</li>
+            <li>注释与字符串可选自动切换到中文</li>
+            <li>Git commit 消息默认切换到中文</li>
+            <li>支持 Java、Kotlin、Python、Go、JavaScript、TypeScript、Rust、C/C++、PHP、Ruby 等常见语言</li>
+            <li>提供诊断窗口、结构化报告导出、<code>im-select</code> 和命令适配器支持</li>
         </ul>
-        <p>默认优先走稳定链路；实验性原生适配器需要手动启用，适合兼容性验证，不建议直接在生产环境默认开启。</p>
+        <p>默认使用稳定的命令适配器；实验性原生适配器需要手动启用，不建议在生产环境默认开启。</p>
     ]]></description>
     <change-notes><![CDATA[
+        <p>0.2.0</p>
+        <ul>
+            <li>扩展语言支持：适配所有 JetBrains IDE 和常见编程语言</li>
+            <li>Git commit 消息自动切换到中文</li>
+            <li>新增通用规则配置项：支持非 Java/Kotlin 语言的注释与字符串场景</li>
+        </ul>
         <p>0.1.0</p>
         <ul>
             <li>完成首版上下文识别、策略状态机、设置页与诊断窗口</li>
@@ -25,9 +31,6 @@
     ]]></change-notes>
 
     <depends>com.intellij.modules.platform</depends>
-    <depends>com.intellij.java</depends>
-    <depends>com.intellij.modules.xml</depends>
-    <depends>org.jetbrains.kotlin</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <postStartupActivity implementation="io.justcodeit.smartime.startup.SmartImeProjectActivity"/>

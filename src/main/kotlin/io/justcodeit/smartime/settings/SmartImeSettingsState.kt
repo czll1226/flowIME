@@ -16,6 +16,8 @@ class SmartImeSettingsState : PersistentStateComponent<SmartImeSettingsState.Sta
         var kotlinCommentsChinese: Boolean = true,
         var stringsChinese: Boolean = true,
         var xmlCommentsChinese: Boolean = true,
+        var generalCommentsChinese: Boolean = true,
+        var generalStringsChinese: Boolean = true,
         var debugLogging: Boolean = true,
         var enableExperimentalNativeAdapters: Boolean = false,
         var englishSwitchCommand: String = "",

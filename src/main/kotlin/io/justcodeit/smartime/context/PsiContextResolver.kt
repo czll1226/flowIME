@@ -11,12 +11,6 @@ import com.intellij.psi.PsiWhiteSpace
 import com.intellij.psi.util.PsiTreeUtil
 import io.justcodeit.smartime.model.ContextSnapshot
 import io.justcodeit.smartime.model.ContextType
-import org.jetbrains.kotlin.psi.KtBlockStringTemplateEntry
-import org.jetbrains.kotlin.psi.KtEscapeStringTemplateEntry
-import org.jetbrains.kotlin.psi.KtLiteralStringTemplateEntry
-import org.jetbrains.kotlin.psi.KtSimpleNameStringTemplateEntry
-import org.jetbrains.kotlin.psi.KtStringTemplateEntry
-import org.jetbrains.kotlin.psi.KtStringTemplateExpression
 
 class PsiContextResolver : ContextResolver {
     private val logger = Logger.getInstance(PsiContextResolver::class.java)
@@ -70,8 +64,9 @@ class PsiContextResolver : ContextResolver {
             return ContextType.UNKNOWN
         }
 
-        if (!isSupportedLanguage(psiFile.language.id)) {
-            return ContextType.UNKNOWN
+        // git commit message: switch to chinese by default
+        if (psiFile.name.contains("COMMIT_EDITMSG", ignoreCase = true)) {
+            return ContextType.DOC_COMMENT
         }
 
         return try {
@@ -84,14 +79,13 @@ class PsiContextResolver : ContextResolver {
                 ContextType.STRING_LITERAL
             } else if (isStringLiteral(psiFile, element)) {
                 ContextType.STRING_LITERAL
-            } else if (psiFile.language.id.equals("XML", ignoreCase = true)) {
-                ContextType.UNKNOWN
             } else {
                 ContextType.CODE
             }
         } catch (t: Throwable) {
+            // shortcut: Kotlin PSI check may fail if plugin not loaded, fallback to CODE
             logger.warn("Failed to resolve PSI context", t)
-            ContextType.UNKNOWN
+            ContextType.CODE
         }
     }
 
@@ -107,10 +101,6 @@ class PsiContextResolver : ContextResolver {
     }
 
     private fun isStringLiteral(psiFile: PsiFile, element: PsiElement): Boolean {
-        if (!isJavaOrKotlin(psiFile.language.id)) {
-            return false
-        }
-
         if (psiFile.language.id.equals("kotlin", ignoreCase = true)) {
             return false
         }
@@ -128,17 +118,21 @@ class PsiContextResolver : ContextResolver {
         return languageId.equals("JAVA", ignoreCase = true) || languageId.equals("kotlin", ignoreCase = true)
     }
 
-    private fun isSupportedLanguage(languageId: String): Boolean {
-        return isJavaOrKotlin(languageId) || languageId.equals("XML", ignoreCase = true)
-    }
-
     private fun isKotlinInterpolationExpression(psiFile: PsiFile, element: PsiElement): Boolean {
         if (!psiFile.language.id.equals("kotlin", ignoreCase = true)) {
             return false
         }
 
-        val entry = PsiTreeUtil.getParentOfType(element, KtStringTemplateEntry::class.java, false) ?: return false
-        return entry is KtBlockStringTemplateEntry || entry is KtSimpleNameStringTemplateEntry
+        // shortcut: only check if Kotlin plugin loaded, dynamic class resolution
+        return try {
+            val ktStringTemplateEntryClass = Class.forName("org.jetbrains.kotlin.psi.KtStringTemplateEntry")
+            @Suppress("UNCHECKED_CAST")
+            val entry = PsiTreeUtil.getParentOfType(element, ktStringTemplateEntryClass as Class<out PsiElement>, false) ?: return false
+            val className = entry.javaClass.simpleName
+            className == "KtBlockStringTemplateEntry" || className == "KtSimpleNameStringTemplateEntry"
+        } catch (e: ClassNotFoundException) {
+            false
+        }
     }
 
     private fun isKotlinStringLiteralContent(psiFile: PsiFile, element: PsiElement): Boolean {
@@ -146,12 +140,22 @@ class PsiContextResolver : ContextResolver {
             return false
         }
 
-        val entry = PsiTreeUtil.getParentOfType(element, KtStringTemplateEntry::class.java, false)
-        if (entry is KtLiteralStringTemplateEntry || entry is KtEscapeStringTemplateEntry) {
-            return true
+        return try {
+            val ktStringTemplateEntryClass = Class.forName("org.jetbrains.kotlin.psi.KtStringTemplateEntry")
+            val ktStringTemplateExpressionClass = Class.forName("org.jetbrains.kotlin.psi.KtStringTemplateExpression")
+            @Suppress("UNCHECKED_CAST")
+            val entry = PsiTreeUtil.getParentOfType(element, ktStringTemplateEntryClass as Class<out PsiElement>, false)
+            if (entry != null) {
+                val className = entry.javaClass.simpleName
+                if (className == "KtLiteralStringTemplateEntry" || className == "KtEscapeStringTemplateEntry") {
+                    return true
+                }
+            }
+            @Suppress("UNCHECKED_CAST")
+            val templateExpression = PsiTreeUtil.getParentOfType(element, ktStringTemplateExpressionClass as Class<out PsiElement>, false)
+            templateExpression != null && entry == null
+        } catch (e: ClassNotFoundException) {
+            false
         }
-
-        val templateExpression = PsiTreeUtil.getParentOfType(element, KtStringTemplateExpression::class.java, false)
-        return templateExpression != null && entry == null
     }
 }
